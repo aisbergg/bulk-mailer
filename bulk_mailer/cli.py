@@ -261,7 +261,10 @@ def main():
 
         # send the mails
         bulk_mailer.send(args.delay)
-
+    
+    except KeyboardInterrupt:
+        Log.info("Interrupted by user, Exiting...")
+        sys.exit(1)
     except Exception as e:
         # catch errors and print to stderr
         if args.verbose >= 2:
