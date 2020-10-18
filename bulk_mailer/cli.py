@@ -17,8 +17,8 @@ if not sys.version_info[:2] >= (3, 0):
 def main():
     # parse arguments
     parser = argparse.ArgumentParser(
-        prog="docker-compose-templer",
-        description="Render Docker Compose file templates with the power of Jinja2",
+        prog="bulk-mailer",
+        description="Write your content in Markdown, style your email with HTML, render your template with the power of Jinja2 and send it as bulk mail to a list of addresses.",
         add_help=False,
     )
 
@@ -39,14 +39,14 @@ def main():
         dest="verbose",
         action="count",
         default=0,
-        help="Enable verbose mode",
+        help="Enable more verbose mode",
     )
     parser.add_argument(
         "recipients_list",
         nargs='+',
         default=[],
         help=
-        "Filename of the report(s). More infos in the example section below. Example: '${Y}-${M}-${D}_${site_name}.csv'"
+        "CSV file containing the recipients"
     )
 
     smtp_parser = parser.add_argument_group(title="connection arguments")
@@ -55,7 +55,7 @@ def main():
         "--smtp-host",
         dest="smtp_host",
         type=str,
-        help="",
+        help="Host for the SMTP connection",
     )
     smtp_parser.add_argument(
         "-o",
@@ -63,35 +63,35 @@ def main():
         dest="smtp_port",
         type=int,
         default=465,
-        help="",
+        help="Port for the SMTP connection",
     )
     smtp_parser.add_argument(
         "-u",
         "--smtp-username",
         dest="smtp_username",
         type=str,
-        help="",
+        help="Username for the login",
     )
     smtp_parser.add_argument(
         "-p",
         "--smtp-password",
         dest="smtp_password",
         type=str,
-        help="",
+        help="Password for the login",
     )
     smtp_parser.add_argument(
         "--smtp-nossl",
         dest="smtp_nossl",
         action="store_true",
         default=False,
-        help="",
+        help="Disable TLS for the SMTP connection",
     )
     smtp_parser.add_argument(
         "--smtp-starttls",
         dest="smtp_starttls",
         action="store_true",
         default=False,
-        help="",
+        help="Use starttls for the SMTP connection",
     )
 
     sender_parser = parser.add_argument_group(title="mail arguments")
@@ -100,55 +100,55 @@ def main():
         "--sender",
         dest="sender",
         type=str,
-        help="",
+        help="The sender of the bulk mail",
     )
     sender_parser.add_argument(
         "-s",
         "--subject",
         dest="subject",
         type=str,
-        help="",
+        help="Subject of the bulk mail",
     )
     sender_parser.add_argument(
         "-l",
         "--html-template",
         dest="html_template",
         type=str,
-        help="",
+        help="HTML to be used",
     )
     sender_parser.add_argument(
         "-m",
         "--markdown-template",
         dest="markdown_template",
         type=str,
-        help="",
+        help="Markdown template to be used, its content will be inserted into the HTML template",
     )
     sender_parser.add_argument(
         "--plaintext-template",
         dest="plaintext_template",
         type=str,
-        help="",
+        help="Plaintext template to be used",
     )
     sender_parser.add_argument(
         "--csv-skip-rows",
         dest="csv_skip_rows",
         type=int,
         default=0,
-        help="",
+        help="Amount of rows to skip of the CSV file",
     )
     sender_parser.add_argument(
         "--csv-delimiter",
         dest="csv_delimiter",
         type=str,
-        default=";",
-        help="",
+        default=",",
+        help="Delimiter to use for the CSV file",
     )
     sender_parser.add_argument(
         "--send-delay",
         dest="delay",
         type=int,
         default=0,
-        help="",
+        help="Add delay in between sending mails",
     )
 
     encryption_signature_parser = parser.add_argument_group(title="encryption and signature arguments")
@@ -157,26 +157,26 @@ def main():
         dest="gpg_encrypt",
         action="store_true",
         default=False,
-        help="",
+        help="Encrypt mails with GPG",
     )
     encryption_signature_parser.add_argument(
         "--gpg-sign",
         dest="gpg_sign",
         action="store_true",
         default=False,
-        help="",
+        help="Sign mails with GPG",
     )
     encryption_signature_parser.add_argument(
         "--gpg-key",
         dest="gpg_key",
         type=str,
-        help="",
+        help="Key to use for GPG signing",
     )
     encryption_signature_parser.add_argument(
         "--gpg-password",
         dest="gpg_password",
         type=str,
-        help="",
+        help="Password for GPG signing",
     )
 
     test_parser = parser.add_argument_group(title="test arguments")
@@ -184,14 +184,14 @@ def main():
         "--test-email",
         dest="test_email",
         type=str,
-        help="",
+        help="Test mail transmission by sending it to the specified address",
     )
     test_parser.add_argument(
         "--test-count",
         dest="test_count",
         type=int,
         default=1,
-        help="",
+        help="How many mails shall be send to the address specified with --test-count",
     )
     test_parser.add_argument(
         "-n",
@@ -199,7 +199,7 @@ def main():
         dest="dry_run",
         action="store_true",
         default=False,
-        help="",
+        help="Perform a dry-run, do not send emails",
     )
 
     args = parser.parse_args(sys.argv[1:])
